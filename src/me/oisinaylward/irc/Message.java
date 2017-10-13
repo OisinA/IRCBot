@@ -16,28 +16,6 @@ public class Message {
 	
 	public Message(String s) {
 		input = s;
-//		
-//		String[] split = s.split(":");
-//		nickname = split[0];
-//		
-//		split = s.split("!");
-//		username = split[1];
-//		
-//		split = s.split("@");
-//		ip = split[1];
-//		
-//		split = s.split(" ");
-//		command = split[1];
-//		
-//		if(command.equalsIgnoreCase("privmsg")) {
-//			channel = split[2];
-//			
-//			for(String s1 : split) {
-//				if(!s1.equals(channel) && !s1.equals(command)) {
-//					message = message + " " + s1;
-//				}
-//			}
-//		}
 	}
 	
 	public void parse() {
