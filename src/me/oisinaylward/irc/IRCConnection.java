@@ -15,6 +15,8 @@ public class IRCConnection {
 	public static String CHANNEL = "#haskell";
 	
 	private Socket socket;
+	private BufferedWriter writer;
+	private BufferedReader reader;
 	
 	private String ip;
 	private int port;
@@ -26,15 +28,9 @@ public class IRCConnection {
 	
 	public void start() {
 		try {
-			socket = new Socket(ip, port);
+			setupConnection();
 			
-			BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-			BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			
-			Log.log("Client", "Sending username information.");
-			writer.write("NICK " + USERNAME + FormatUtil.LINE_DOWN + FormatUtil.NEW_LINE);
-			writer.write("USER " + USERNAME + " 8 * : Testing..." + FormatUtil.LINE_DOWN + FormatUtil.NEW_LINE);
-			writer.flush();
+			sendUserInfo();
 			
 			String line = "";
 			boolean cont = false;
@@ -52,9 +48,7 @@ public class IRCConnection {
 				}
 			}
 			
-			writer.write("JOIN " + CHANNEL + FormatUtil.LINE_DOWN + FormatUtil.NEW_LINE);
-			Log.log("Server", "Joining channel " + CHANNEL + ".");
-			writer.flush();
+			joinChannel(CHANNEL);
 			
 			cont = false;
 			while(!cont) {
@@ -68,6 +62,38 @@ public class IRCConnection {
 				}
 			}
 		} catch(IOException e) {
+			Log.error(e);
+		}
+	}
+	
+	private void setupConnection() {
+		try {
+			socket = new Socket(ip, port);
+		
+			writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+			reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		} catch(Exception e) {
+			Log.error(e);
+		}
+	}
+	
+	private void sendUserInfo() {
+		try {
+			Log.log("Client", "Sending username information.");
+			writer.write("NICK " + USERNAME + FormatUtil.LINE_DOWN + FormatUtil.NEW_LINE);
+			writer.write("USER " + USERNAME + " 8 * : Testing..." + FormatUtil.LINE_DOWN + FormatUtil.NEW_LINE);
+			writer.flush();
+		} catch(Exception e) {
+			Log.error(e);
+		}
+	}
+	
+	private void joinChannel(String channel) {
+		try {
+			writer.write("JOIN " + channel + FormatUtil.LINE_DOWN + FormatUtil.NEW_LINE);
+			Log.log("Server", "Joining channel " + CHANNEL + ".");
+			writer.flush();
+		} catch(Exception e) {
 			Log.error(e);
 		}
 	}
