@@ -50,6 +50,19 @@ public class IRCConnection {
 			
 			joinChannel(CHANNEL);
 			
+			Runtime.getRuntime().addShutdownHook(new Thread() {
+			    @Override
+			    public void run() {
+			    	try {
+			    		writer.write("QUIT");
+			    		Log.log("Client", "Sent quit protocol.");
+			    		writer.flush();
+			    	} catch(Exception e) {
+			    		Log.error(e);
+			    	}
+			    }
+			});
+			
 			cont = false;
 			while(!cont) {
 				line = reader.readLine();
@@ -58,7 +71,12 @@ public class IRCConnection {
 					writer.write("PONG " + line.substring(5) + FormatUtil.LINE_DOWN + FormatUtil.NEW_LINE);
 					writer.flush();
 				} else {
-					Log.log("Server", line);
+					Message m = new Message(line);
+					m.parse();
+					if(m.getCommand().equals("PRIVMSG"))
+						Log.log("Server", m.getNickname() + " > " + m.getMessage());
+					else
+						Log.log("Server", line);
 				}
 			}
 		} catch(IOException e) {
